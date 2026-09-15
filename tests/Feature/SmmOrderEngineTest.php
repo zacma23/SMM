@@ -163,4 +163,13 @@ class SmmOrderEngineTest extends TestCase
         $this->assertEquals(SmmOrder::STATUS_CANCELED, $order->status);
         $this->assertEquals(50.00, (float)$this->customer->fresh()->wallet->balance);
     }
+
+    public function test_customer_can_view_new_order_page_with_service_query_parameter(): void
+    {
+        $response = $this->actingAs($this->customer)->get('/customer/smm/new-order?service_id=' . $this->service->id);
+
+        $response->assertStatus(200);
+        $response->assertSee($this->service->name);
+        $response->assertSee(route('customer.smm.orders.index'));
+    }
 }

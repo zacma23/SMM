@@ -223,7 +223,8 @@ Route::prefix('customer')->middleware(['auth'])->group(function () {
     Route::post('/smm/calculate-price', [SmmCustomerPortalController::class, 'calculatePrice'])->name('customer.smm.calculate-price');
     Route::post('/smm/orders', [SmmCustomerPortalController::class, 'storeOrder'])->name('customer.smm.orders.store');
     Route::get('/smm/services', [SmmCustomerPortalController::class, 'services'])->name('customer.smm.services');
-    Route::get('/smm/orders', [SmmCustomerPortalController::class, 'orders'])->name('customer.smm.orders');
+    Route::get('/smm/orders', [SmmCustomerPortalController::class, 'orders'])->name('customer.smm.orders.index');
+    Route::get('/smm/my-orders', [SmmCustomerPortalController::class, 'orders'])->name('customer.smm.orders');
     Route::post('/smm/orders/{order}/refill', [SmmCustomerPortalController::class, 'refill'])->name('customer.smm.orders.refill');
     Route::post('/smm/orders/{order}/cancel', [SmmCustomerPortalController::class, 'cancel'])->name('customer.smm.orders.cancel');
     Route::get('/smm/wallet', [SmmCustomerPortalController::class, 'wallet'])->name('customer.smm.wallet');
@@ -250,6 +251,8 @@ Route::prefix('reseller')->middleware(['auth', 'role:SUPER_ADMIN,ORGANIZATION_AD
     Route::get('/orders', [SmmResellerPortalController::class, 'orders'])->name('reseller.orders');
     Route::get('/api-docs', [SmmResellerPortalController::class, 'apiDocs'])->name('reseller.api-docs');
     Route::post('/api-keys', [SmmResellerPortalController::class, 'generateApiKey'])->name('reseller.api-keys.generate');
+    Route::post('/api-docs/generate-key', [SmmResellerPortalController::class, 'generateApiKey'])->name('reseller.api-docs.generate-key');
+    Route::post('/api-docs/revoke-key/{apiKey}', [SmmResellerPortalController::class, 'revokeApiKey'])->name('reseller.api-docs.revoke-key');
     Route::delete('/api-keys/{apiKey}', [SmmResellerPortalController::class, 'revokeApiKey'])->name('reseller.api-keys.revoke');
     Route::get('/child-panel', [SmmResellerPortalController::class, 'childPanel'])->name('reseller.child-panel');
     Route::post('/child-panel', [SmmResellerPortalController::class, 'updateChildPanel'])->name('reseller.child-panel.update');
