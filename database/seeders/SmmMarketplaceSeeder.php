@@ -480,7 +480,19 @@ class SmmMarketplaceSeeder extends Seeder
             }
         }
 
-        // 3. Ensure all existing users have an initialized Wallet with funds
+        // 3. Ensure dedicated demo reseller user exists
+        $resellerUser = User::firstOrCreate(
+            ['email' => 'reseller@zacma.com'],
+            [
+                'name' => 'Agency Wholesale Reseller',
+                'password' => bcrypt('password'),
+                'role' => User::ROLE_RESELLER,
+                'is_active' => true,
+                'organization_id' => 1,
+            ]
+        );
+
+        // 4. Ensure all existing users have an initialized Wallet with funds
         foreach (User::all() as $user) {
             $initialBalance = $user->isSuperAdmin() ? 5000.00 : 250.00;
             $wallet = Wallet::firstOrCreate(
