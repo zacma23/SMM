@@ -52,6 +52,10 @@
                     <nav class="hidden md:flex space-x-4">
                         <a href="{{ route('home') }}" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-3 py-2">Home</a>
                         <a href="{{ route('marketplace.browse') }}" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-3 py-2">Browse All</a>
+                        <a href="{{ route('customer.smm.services') }}" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 px-3 py-2 flex items-center gap-1.5 bg-indigo-50/70 rounded-lg">
+                            <i class="fa-solid fa-bolt text-amber-500"></i>
+                            <span>SMM Services</span>
+                        </a>
                         <a href="{{ route('marketplace.category', 'vehicles') }}" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-3 py-2">Vehicles</a>
                         <a href="{{ route('marketplace.category', 'property') }}" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-3 py-2">Property</a>
                         <a href="{{ route('marketplace.category', 'electronics') }}" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-3 py-2">Electronics</a>
@@ -61,6 +65,10 @@
 
                 <div class="hidden md:flex items-center space-x-4">
                     @auth
+                        <a href="{{ route('customer.smm.dashboard') }}" class="text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition">
+                            <i class="fa-solid fa-rocket text-indigo-500"></i>
+                            <span>SMM Portal</span>
+                        </a>
                         <a href="{{ Auth::user()->getDashboardUrl() }}" class="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center space-x-1">
                             <i class="fa-solid fa-gauge"></i>
                             <span>Portal Dashboard</span>
@@ -96,7 +104,13 @@
         <div x-show="mobileOpen" x-cloak class="md:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-2">
             <a href="{{ route('home') }}" class="block px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50 rounded">Home</a>
             <a href="{{ route('marketplace.browse') }}" class="block px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50 rounded">Browse All</a>
+            <a href="{{ route('customer.smm.services') }}" class="block px-3 py-2 text-base font-bold text-indigo-600 hover:bg-indigo-50 rounded flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-amber-500"></i> SMM Services
+            </a>
             @auth
+                <a href="{{ route('customer.smm.dashboard') }}" class="block px-3 py-2 text-base font-bold text-indigo-700 hover:bg-indigo-50 rounded flex items-center gap-2">
+                    <i class="fa-solid fa-rocket text-indigo-500"></i> SMM Portal
+                </a>
                 <div class="flex items-center gap-3 px-3 py-2 bg-slate-50 rounded-lg border border-slate-100">
                     <img src="{{ Auth::user()->getAvatarUrl() }}" alt="{{ Auth::user()->name }}" class="w-9 h-9 rounded-full object-cover border">
                     <div class="text-xs">

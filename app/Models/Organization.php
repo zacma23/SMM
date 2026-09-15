@@ -29,10 +29,23 @@ class Organization extends Model
         'branding_colors',
         'status',
         'subscription_ends_at',
+        'brand_name',
+        'theme_config',
+        'contact_details',
+        'terms_content',
+        'privacy_content',
+        'markup_type',
+        'default_markup',
+        'allow_public_registration',
+        'custom_domain_status',
     ];
 
     protected $casts = [
         'branding_colors' => 'array',
+        'theme_config' => 'array',
+        'contact_details' => 'array',
+        'allow_public_registration' => 'boolean',
+        'default_markup' => 'decimal:2',
         'subscription_ends_at' => 'datetime',
     ];
 
@@ -104,6 +117,26 @@ class Organization extends Model
     public function settings(): HasMany
     {
         return $this->hasMany(Setting::class);
+    }
+
+    public function smmOrders(): HasMany
+    {
+        return $this->hasMany(SmmOrder::class);
+    }
+
+    public function smmTenantServices(): HasMany
+    {
+        return $this->hasMany(SmmTenantService::class);
+    }
+
+    public function smmTickets(): HasMany
+    {
+        return $this->hasMany(SmmTicket::class);
+    }
+
+    public function wallets(): HasMany
+    {
+        return $this->hasMany(Wallet::class);
     }
 
     public function isActive(): bool

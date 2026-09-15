@@ -7,6 +7,9 @@ use App\Http\Controllers\CustomerPortalController;
 use App\Http\Controllers\DealerPortalController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SmmCustomerPortalController;
+use App\Http\Controllers\SmmResellerPortalController;
+use App\Http\Controllers\SmmSuperAdminController;
 use App\Http\Controllers\SuperAdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +24,8 @@ Route::get('/listing/{slug}', [MarketplaceController::class, 'show'])->name('mar
 Route::post('/listing/{listing}/inquire', [MarketplaceController::class, 'submitInquiry'])->name('marketplace.inquire');
 Route::post('/listing/{listing}/book', [MarketplaceController::class, 'bookAppointment'])->name('marketplace.book');
 Route::get('/pricing', [MarketplaceController::class, 'pricing'])->name('pricing');
+Route::get('/services', [SmmCustomerPortalController::class, 'services'])->name('services.public');
+Route::get('/api-docs', [SmmResellerPortalController::class, 'apiDocs'])->name('api-docs.public');
 
 // ==========================================
 // CHECKOUT & PAYMENTS
@@ -113,6 +118,25 @@ Route::prefix('super-admin')->middleware(['auth', 'role:SUPER_ADMIN'])->group(fu
     Route::get('/settings', [SuperAdminController::class, 'settings'])->name('super-admin.settings.index');
     Route::post('/settings', [SuperAdminController::class, 'updateSettings'])->name('super-admin.settings.update');
     Route::get('/audit-logs', [SuperAdminController::class, 'auditLogs'])->name('super-admin.audit-logs.index');
+
+    // SMM Platform & Marketplace Command Center
+    Route::get('/smm', [SmmSuperAdminController::class, 'dashboard'])->name('super-admin.smm.dashboard');
+    Route::get('/smm/platforms', [SmmSuperAdminController::class, 'platforms'])->name('super-admin.smm.platforms');
+    Route::post('/smm/platforms', [SmmSuperAdminController::class, 'storePlatform'])->name('super-admin.smm.platforms.store');
+    Route::post('/smm/categories', [SmmSuperAdminController::class, 'storeCategory'])->name('super-admin.smm.categories.store');
+    Route::get('/smm/services', [SmmSuperAdminController::class, 'services'])->name('super-admin.smm.services');
+    Route::post('/smm/services', [SmmSuperAdminController::class, 'storeService'])->name('super-admin.smm.services.store');
+    Route::get('/smm/providers', [SmmSuperAdminController::class, 'providers'])->name('super-admin.smm.providers');
+    Route::post('/smm/providers', [SmmSuperAdminController::class, 'storeProvider'])->name('super-admin.smm.providers.store');
+    Route::post('/smm/providers/{provider}/test', [SmmSuperAdminController::class, 'testProvider'])->name('super-admin.smm.providers.test');
+    Route::get('/smm/orders', [SmmSuperAdminController::class, 'orders'])->name('super-admin.smm.orders');
+    Route::post('/smm/orders/{order}/sync', [SmmSuperAdminController::class, 'syncOrder'])->name('super-admin.smm.orders.sync');
+    Route::post('/smm/orders/{order}/refund', [SmmSuperAdminController::class, 'refundOrder'])->name('super-admin.smm.orders.refund');
+    Route::get('/smm/wallets', [SmmSuperAdminController::class, 'wallets'])->name('super-admin.smm.wallets');
+    Route::post('/smm/wallets/{wallet}/adjust', [SmmSuperAdminController::class, 'adjustWallet'])->name('super-admin.smm.wallets.adjust');
+    Route::get('/smm/child-panels', [SmmSuperAdminController::class, 'childPanels'])->name('super-admin.smm.child-panels');
+    Route::get('/smm/tickets', [SmmSuperAdminController::class, 'tickets'])->name('super-admin.smm.tickets');
+    Route::post('/smm/tickets/{ticket}/reply', [SmmSuperAdminController::class, 'replyTicket'])->name('super-admin.smm.tickets.reply');
 });
 
 // Stop Impersonation (accessible by any logged-in user with active impersonator_id in session)
@@ -192,6 +216,43 @@ Route::prefix('customer')->middleware(['auth'])->group(function () {
     Route::get('/', [CustomerPortalController::class, 'dashboard'])->name('customer.dashboard');
     Route::get('/orders', [CustomerPortalController::class, 'orders'])->name('customer.orders.index');
     Route::get('/appointments', [CustomerPortalController::class, 'appointments'])->name('customer.appointments.index');
+
+    // Customer SMM Marketplace & Orders
+    Route::get('/smm', [SmmCustomerPortalController::class, 'dashboard'])->name('customer.smm.dashboard');
+    Route::get('/smm/new-order', [SmmCustomerPortalController::class, 'newOrder'])->name('customer.smm.new-order');
+    Route::post('/smm/calculate-price', [SmmCustomerPortalController::class, 'calculatePrice'])->name('customer.smm.calculate-price');
+    Route::post('/smm/orders', [SmmCustomerPortalController::class, 'storeOrder'])->name('customer.smm.orders.store');
+    Route::get('/smm/services', [SmmCustomerPortalController::class, 'services'])->name('customer.smm.services');
+    Route::get('/smm/orders', [SmmCustomerPortalController::class, 'orders'])->name('customer.smm.orders');
+    Route::post('/smm/orders/{order}/refill', [SmmCustomerPortalController::class, 'refill'])->name('customer.smm.orders.refill');
+    Route::post('/smm/orders/{order}/cancel', [SmmCustomerPortalController::class, 'cancel'])->name('customer.smm.orders.cancel');
+    Route::get('/smm/wallet', [SmmCustomerPortalController::class, 'wallet'])->name('customer.smm.wallet');
+    Route::post('/smm/wallet/deposit', [SmmCustomerPortalController::class, 'deposit'])->name('customer.smm.wallet.deposit');
+    Route::get('/smm/bulk-orders', [SmmCustomerPortalController::class, 'bulkOrders'])->name('customer.smm.bulk-orders');
+    Route::post('/smm/bulk-orders', [SmmCustomerPortalController::class, 'processBulkOrders'])->name('customer.smm.bulk-orders.process');
+    Route::get('/smm/tickets', [SmmCustomerPortalController::class, 'tickets'])->name('customer.smm.tickets');
+    Route::post('/smm/tickets', [SmmCustomerPortalController::class, 'storeTicket'])->name('customer.smm.tickets.store');
+    Route::post('/smm/tickets/{ticket}/reply', [SmmCustomerPortalController::class, 'replyTicket'])->name('customer.smm.tickets.reply');
+});
+
+// ==========================================
+// RESELLER PORTAL
+// ==========================================
+
+Route::prefix('reseller')->middleware(['auth', 'role:SUPER_ADMIN,ORGANIZATION_ADMIN,MANAGER,RESELLER,STAFF'])->group(function () {
+    Route::get('/', [SmmResellerPortalController::class, 'dashboard'])->name('reseller.dashboard');
+    Route::get('/services', [SmmResellerPortalController::class, 'services'])->name('reseller.services');
+    Route::get('/customers', [SmmResellerPortalController::class, 'customers'])->name('reseller.customers');
+    Route::post('/customers', [SmmResellerPortalController::class, 'storeCustomer'])->name('reseller.customers.store');
+    Route::post('/customers/{customer}/toggle', [SmmResellerPortalController::class, 'toggleCustomer'])->name('reseller.customers.toggle');
+    Route::post('/customers/{customer}/balance', [SmmResellerPortalController::class, 'adjustCustomerBalance'])->name('reseller.customers.balance');
+    Route::post('/customers/bulk-import', [SmmResellerPortalController::class, 'bulkCustomerImport'])->name('reseller.customers.bulk-import');
+    Route::get('/orders', [SmmResellerPortalController::class, 'orders'])->name('reseller.orders');
+    Route::get('/api-docs', [SmmResellerPortalController::class, 'apiDocs'])->name('reseller.api-docs');
+    Route::post('/api-keys', [SmmResellerPortalController::class, 'generateApiKey'])->name('reseller.api-keys.generate');
+    Route::delete('/api-keys/{apiKey}', [SmmResellerPortalController::class, 'revokeApiKey'])->name('reseller.api-keys.revoke');
+    Route::get('/child-panel', [SmmResellerPortalController::class, 'childPanel'])->name('reseller.child-panel');
+    Route::post('/child-panel', [SmmResellerPortalController::class, 'updateChildPanel'])->name('reseller.child-panel.update');
 });
 
 // ==========================================

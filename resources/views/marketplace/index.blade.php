@@ -171,6 +171,70 @@
     </div>
 </section>
 
+<!-- SMM Marketplace & Reseller Cloud Section -->
+<section class="py-16 bg-slate-900 text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:20px_20px]"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div class="max-w-2xl space-y-4">
+                <span class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                    <i class="fa-solid fa-bolt text-amber-400"></i>
+                    <span>Wholesale SMM Infrastructure & Reseller SaaS</span>
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+                    Supercharge Your Social Presence with <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">Zacma SMM Cloud</span>
+                </h2>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                    Instant delivery, guaranteed refill rates, and real-time order tracking across Instagram, TikTok, YouTube, Spotify, and Telegram. Launch your own white-label child panel with custom domain branding and wholesale API v2 connectivity.
+                </p>
+                <div class="flex flex-wrap gap-3 pt-2">
+                    <a href="{{ route('customer.smm.services') }}" class="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs sm:text-sm shadow-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-list-check"></i> Explore SMM Services & Rates
+                    </a>
+                    <a href="{{ route('register') }}" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs sm:text-sm border border-slate-700 transition flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> Start Reselling / Child Panel
+                    </a>
+                </div>
+            </div>
+
+            <!-- Feature Pills / Highlights -->
+            <div class="grid grid-cols-2 gap-4 w-full lg:w-auto">
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 space-y-2 backdrop-blur-sm">
+                    <div class="w-9 h-9 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <h3 class="font-bold text-sm text-white">Prepaid Wallet</h3>
+                    <p class="text-xs text-slate-400">Chapa, Telebirr, Cards & Sandbox instant wallet top-ups.</p>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 space-y-2 backdrop-blur-sm">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h3 class="font-bold text-sm text-white">Standard SMM API v2</h3>
+                    <p class="text-xs text-slate-400">Plug into MoreThanPanel or any standard SMM panel.</p>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 space-y-2 backdrop-blur-sm">
+                    <div class="w-9 h-9 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-globe"></i>
+                    </div>
+                    <h3 class="font-bold text-sm text-white">White-Label Panels</h3>
+                    <p class="text-xs text-slate-400">Sell under your own domain with custom retail markups.</p>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 space-y-2 backdrop-blur-sm">
+                    <div class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </div>
+                    <h3 class="font-bold text-sm text-white">Guaranteed Refills</h3>
+                    <p class="text-xs text-slate-400">Automated 30-day refill triggers and partial refunds.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- SaaS Promotion Banner -->
 <section class="py-16 bg-gradient-to-r from-blue-700 to-indigo-800 text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl space-y-6">

@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -20,6 +21,7 @@ class User extends Authenticatable
     public const ROLE_SALES_AGENT = 'SALES_AGENT';
     public const ROLE_STAFF = 'STAFF';
     public const ROLE_SELLER = 'SELLER';
+    public const ROLE_RESELLER = 'RESELLER';
     public const ROLE_CUSTOMER = 'CUSTOMER';
 
     protected $fillable = [
@@ -90,6 +92,44 @@ class User extends Authenticatable
     public function assignedAppointments(): HasMany
     {
         return $this->hasMany(Appointment::class, 'assigned_user_id');
+    }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function smmOrders(): HasMany
+    {
+        return $this->hasMany(SmmOrder::class);
+    }
+
+    public function resellerApiKeys(): HasMany
+    {
+        return $this->hasMany(ResellerApiKey::class);
+    }
+
+    public function smmTickets(): HasMany
+    {
+        return $this->hasMany(SmmTicket::class);
+    }
+
+    public function isReseller(): bool
+    {
+        return $this->role === self::ROLE_RESELLER || $this->isOrgAdmin();
+    }
+
+    public function getOrCreateWallet(): Wallet
+    {
+        return $this->wallet()->firstOrCreate(
+            ['user_id' => $this->id],
+            [
+                'organization_id' => $this->organization_id,
+                'balance' => 0.0000,
+                'currency' => 'USD',
+                'status' => 'active',
+            ]
+        );
     }
 
     public function isSuperAdmin(): bool
@@ -167,6 +207,9 @@ class User extends Authenticatable
     {
         if ($this->isSuperAdmin()) {
             return route('super-admin.dashboard');
+        }
+        if ($this->role === self::ROLE_RESELLER) {
+            return route('reseller.dashboard');
         }
         if ($this->isStaff()) {
             return route('dealer.dashboard');

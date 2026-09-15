@@ -13,3 +13,6 @@ Route::get('/health', function () {
 });
 
 Route::post('/webhooks/payment/{provider}', [\App\Http\Controllers\PaymentController::class, 'handleWebhook'])->name('api.payment.webhook');
+
+// SMM Standard API v2
+Route::any('/v2', [\App\Http\Controllers\Api\SmmApiController::class, 'handle'])->name('api.v2.smm');

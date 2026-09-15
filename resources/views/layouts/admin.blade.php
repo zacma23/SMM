@@ -130,6 +130,40 @@
                     <i class="fa-solid fa-shield-halved w-5"></i>
                     <span>Audit Logs</span>
                 </a>
+
+                <div class="text-[11px] uppercase tracking-wider text-purple-400 font-bold px-3 py-1 mt-3">SMM Marketplace Ops</div>
+                <a href="{{ route('super-admin.smm.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.dashboard') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-gauge-high w-5 text-purple-400"></i>
+                    <span>SMM Command Center</span>
+                </a>
+                <a href="{{ route('super-admin.smm.platforms') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.platforms*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-share-nodes w-5 text-indigo-400"></i>
+                    <span>Platforms & Taxonomy</span>
+                </a>
+                <a href="{{ route('super-admin.smm.services') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.services*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-layer-group w-5 text-blue-400"></i>
+                    <span>Services Catalog</span>
+                </a>
+                <a href="{{ route('super-admin.smm.providers') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.providers*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-network-wired w-5 text-emerald-400"></i>
+                    <span>Upstream Gateways</span>
+                </a>
+                <a href="{{ route('super-admin.smm.orders') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.orders*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-boxes-stacked w-5 text-amber-400"></i>
+                    <span>SMM Orders Audit</span>
+                </a>
+                <a href="{{ route('super-admin.smm.wallets') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.wallets*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-wallet w-5 text-teal-400"></i>
+                    <span>Liquidity & Wallets</span>
+                </a>
+                <a href="{{ route('super-admin.smm.child-panels') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.child-panels*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-globe w-5 text-pink-400"></i>
+                    <span>Child Panels</span>
+                </a>
+                <a href="{{ route('super-admin.smm.tickets') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.tickets*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-headset w-5 text-rose-400"></i>
+                    <span>SMM Support Desk</span>
+                </a>
             @endif
 
             @if(Auth::user()->isStaff() || Auth::user()->isSuperAdmin())
@@ -185,6 +219,64 @@
                     <span>Subscription & Plans</span>
                 </a>
             @endif
+
+            @if(Auth::user()->isReseller() || Auth::user()->isSuperAdmin())
+                <div class="text-[11px] uppercase tracking-wider text-emerald-400 font-bold px-3 py-1 mt-4">Reseller & Agency</div>
+                <a href="{{ route('reseller.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.dashboard') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-chart-pie w-5 text-emerald-400"></i>
+                    <span>Reseller Hub</span>
+                </a>
+                <a href="{{ route('reseller.services') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.services*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-tags w-5 text-blue-400"></i>
+                    <span>Wholesale Rates</span>
+                </a>
+                <a href="{{ route('reseller.customers') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.customers*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-users w-5 text-purple-400"></i>
+                    <span>Agency Clients</span>
+                </a>
+                <a href="{{ route('reseller.orders') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.orders*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-list-check w-5 text-amber-400"></i>
+                    <span>Reseller Orders</span>
+                </a>
+                <a href="{{ route('reseller.api-docs') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.api-docs*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-code w-5 text-indigo-400"></i>
+                    <span>API v2 & Keys</span>
+                </a>
+                <a href="{{ route('reseller.child-panel') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.child-panel*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fa-solid fa-wand-magic-sparkles w-5 text-pink-400"></i>
+                    <span>White-Label Setup</span>
+                </a>
+            @endif
+
+            <div class="text-[11px] uppercase tracking-wider text-blue-400 font-bold px-3 py-1 mt-4">SMM Client Portal</div>
+            <a href="{{ route('customer.smm.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.dashboard') ? 'bg-blue-600 text-white' : '' }}">
+                <i class="fa-solid fa-rocket w-5 text-blue-400"></i>
+                <span>SMM Dashboard</span>
+            </a>
+            <a href="{{ route('customer.smm.new-order') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.new-order') ? 'bg-blue-600 text-white' : '' }}">
+                <i class="fa-solid fa-cart-plus w-5 text-emerald-400"></i>
+                <span>New Order</span>
+            </a>
+            <a href="{{ route('customer.smm.services') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.services') ? 'bg-blue-600 text-white' : '' }}">
+                <i class="fa-solid fa-list w-5 text-indigo-400"></i>
+                <span>Services List</span>
+            </a>
+            <a href="{{ route('customer.smm.orders') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.orders') ? 'bg-blue-600 text-white' : '' }}">
+                <i class="fa-solid fa-clock-rotate-left w-5 text-amber-400"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="{{ route('customer.smm.bulk-orders') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.bulk-orders') ? 'bg-blue-600 text-white' : '' }}">
+                <i class="fa-solid fa-layer-group w-5 text-purple-400"></i>
+                <span>Mass Order</span>
+            </a>
+            <a href="{{ route('customer.smm.wallet') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.wallet') ? 'bg-blue-600 text-white' : '' }}">
+                <i class="fa-solid fa-wallet w-5 text-teal-400"></i>
+                <span>Deposit & Wallet</span>
+            </a>
+            <a href="{{ route('customer.smm.tickets') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.tickets') ? 'bg-blue-600 text-white' : '' }}">
+                <i class="fa-solid fa-life-ring w-5 text-rose-400"></i>
+                <span>Support Tickets</span>
+            </a>
         </nav>
 
         <!-- User profile footer -->

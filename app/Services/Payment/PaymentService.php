@@ -8,6 +8,7 @@ use App\Models\CrmActivity;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\User;
 use App\Services\Automation\AutomationService;
 use Exception;
 use Illuminate\Support\Str;
@@ -216,5 +217,73 @@ class PaymentService
                 $payment->user_id
             );
         }
+
+        // 6. Handle Digital Wallet Deposit
+        $isWalletDeposit = ($payment->request_payload['type'] ?? '') === 'wallet_deposit'
+            || ($order && $order->purchase_type === 'wallet_deposit');
+
+        if ($isWalletDeposit && $payment->user_id) {
+            $user = User::find($payment->user_id);
+            if ($user) {
+                $walletService = new \App\Services\Wallet\WalletService();
+                $usdAmount = \App\Services\SmmPricing\SmmPricingEngine::convert(
+                    (float)$payment->amount,
+                    $payment->currency,
+                    'USD'
+                );
+                $walletService->deposit(
+                    $user,
+                    $usdAmount,
+                    $payment->transaction_reference,
+                    $payment,
+                    "Wallet deposit via {$payment->provider} ({$payment->currency} " . number_format($payment->amount, 2) . ")",
+                    ['provider' => $payment->provider, 'original_amount' => $payment->amount, 'currency' => $payment->currency]
+                );
+            }
+        }
+    }
+
+    /**
+     * Initiate a digital wallet deposit transaction
+     */
+    public function initiateWalletDeposit(User $user, float $amount, string $currency, string $providerName, array $options = []): array
+    {
+        $provider = $this->getProvider($providerName);
+        $reference = 'DEP-' . strtoupper(Str::random(6)) . '-' . time();
+
+        $payment = Payment::create([
+            'organization_id' => $user->organization_id,
+            'order_id' => null,
+            'user_id' => $user->id,
+            'provider' => $providerName,
+            'amount' => $amount,
+            'currency' => $currency,
+            'transaction_reference' => $reference,
+            'status' => Payment::STATUS_PENDING,
+            'request_payload' => array_merge($options, [
+                'type' => 'wallet_deposit',
+                'user_id' => $user->id,
+            ]),
+        ]);
+
+        $result = $provider->initiatePayment($payment, $options);
+
+        if ($result['success'] && !empty($result['provider_reference'])) {
+            $payment->update([
+                'provider_reference' => $result['provider_reference'],
+                'response_payload' => $result['raw'] ?? null,
+            ]);
+        }
+
+        // Auto-verify for cash/sandbox provider
+        if ($providerName === 'cash' || $providerName === 'sandbox') {
+            $this->finalizeSuccessfulPayment($payment);
+        }
+
+        return [
+            'payment' => $payment,
+            'redirect_url' => $result['redirect_url'] ?? null,
+            'success' => $result['success'],
+        ];
     }
 }
