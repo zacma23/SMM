@@ -8,6 +8,27 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::create('payments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('organization_id')->nullable()->constrained('organizations')->nullOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->unsignedBigInteger('order_id')->nullable();
+            $table->string('provider'); // santimpay, telebirr, chapa, paypal, card, crypto, cash
+            $table->decimal('amount', 14, 4);
+            $table->string('currency', 3)->default('USD');
+            $table->string('transaction_reference')->unique();
+            $table->string('provider_reference')->nullable();
+            $table->string('status')->default('pending'); // pending, verified, failed, refunded
+            $table->json('request_payload')->nullable();
+            $table->json('response_payload')->nullable();
+            $table->timestamp('verified_at')->nullable();
+            $table->timestamps();
+
+            $table->index(['user_id', 'status']);
+            $table->index(['transaction_reference']);
+            $table->index(['provider_reference']);
+        });
+
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
@@ -58,5 +79,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('wallet_transactions');
         Schema::dropIfExists('wallets');
+        Schema::dropIfExists('payments');
     }
 };

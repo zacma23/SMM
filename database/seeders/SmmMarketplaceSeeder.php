@@ -480,7 +480,49 @@ class SmmMarketplaceSeeder extends Seeder
             }
         }
 
-        // 3. Ensure dedicated demo reseller user exists
+        // 3. Ensure demo Child Panel Agency Organization exists
+        $agencyOrg = Organization::firstOrCreate(
+            ['slug' => 'apex-agency'],
+            [
+                'name' => 'Apex Digital SMM Agency',
+                'subdomain' => 'apex',
+                'custom_domain' => 'panel.apexagency.com',
+                'custom_domain_status' => 'active',
+                'brand_name' => 'Apex Viral Solutions',
+                'email' => 'support@apexagency.com',
+                'phone' => '+18005550199',
+                'currency' => 'USD',
+                'status' => 'active',
+                'markup_type' => 'percentage',
+                'default_markup' => 35.00,
+                'allow_public_registration' => true,
+                'theme_config' => [
+                    'primary_color' => '#2563EB',
+                    'secondary_color' => '#1E40AF',
+                    'accent_color' => '#38BDF8',
+                    'font' => 'Instrument Sans',
+                ],
+                'contact_details' => [
+                    'email' => 'support@apexagency.com',
+                    'whatsapp' => '+1234567890',
+                    'telegram' => '@ApexSupport',
+                ],
+                'terms_content' => "Terms of Service: All services are delivered via verified social media networks according to terms and platform guidelines.",
+                'privacy_content' => "Privacy Policy: Customer data is confidential and never shared with third parties.",
+            ]
+        );
+
+        // 4. Ensure demo users exist
+        $adminUser = User::firstOrCreate(
+            ['email' => 'admin@zacma.com'],
+            [
+                'name' => 'Super Administrator',
+                'password' => bcrypt('password'),
+                'role' => User::ROLE_SUPER_ADMIN,
+                'is_active' => true,
+            ]
+        );
+
         $resellerUser = User::firstOrCreate(
             ['email' => 'reseller@zacma.com'],
             [
@@ -488,13 +530,23 @@ class SmmMarketplaceSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'role' => User::ROLE_RESELLER,
                 'is_active' => true,
-                'organization_id' => 1,
+                'organization_id' => $agencyOrg->id,
             ]
         );
 
-        // 4. Ensure all existing users have an initialized Wallet with funds
+        $customerUser = User::firstOrCreate(
+            ['email' => 'customer@zacma.com'],
+            [
+                'name' => 'Customer Demo User',
+                'password' => bcrypt('password'),
+                'role' => User::ROLE_CUSTOMER,
+                'is_active' => true,
+            ]
+        );
+
+        // 5. Ensure all existing users have an initialized Wallet with funds
         foreach (User::all() as $user) {
-            $initialBalance = $user->isSuperAdmin() ? 5000.00 : 250.00;
+            $initialBalance = $user->isSuperAdmin() ? 5000.00 : ($user->isReseller() ? 1000.00 : 250.00);
             $wallet = Wallet::firstOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -526,37 +578,12 @@ class SmmMarketplaceSeeder extends Seeder
                 ]);
             }
 
-            // Create default API key for admin and dealers/resellers
-            if ($user->isSuperAdmin() || $user->isStaff() || $user->isOrgAdmin()) {
+            // Create default API key for admin and resellers
+            if ($user->isSuperAdmin() || $user->isReseller() || $user->isStaff() || $user->isOrgAdmin()) {
                 if ($user->resellerApiKeys()->count() === 0) {
                     ResellerApiKey::generateForUser($user, 'Primary Production API Key');
                 }
             }
-        }
-
-        // 4. Update default organization with White-Label Child Panel Settings
-        $org = Organization::first();
-        if ($org) {
-            $org->update([
-                'brand_name' => 'AutoViral SMM Solutions',
-                'markup_type' => 'percentage',
-                'default_markup' => 35.00,
-                'allow_public_registration' => true,
-                'custom_domain_status' => 'active',
-                'theme_config' => [
-                    'primary_color' => '#2563EB',
-                    'secondary_color' => '#1E40AF',
-                    'accent_color' => '#38BDF8',
-                    'font' => 'Instrument Sans',
-                ],
-                'contact_details' => [
-                    'email' => 'support@autoviral.example.com',
-                    'whatsapp' => '+1234567890',
-                    'telegram' => '@AutoViralSupport',
-                ],
-                'terms_content' => "Terms of Service: All services are delivered via verified social media networks according to terms and platform guidelines.",
-                'privacy_content' => "Privacy Policy: Customer data is confidential and never shared with third parties.",
-            ]);
         }
     }
 }

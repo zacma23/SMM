@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-slate-100">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-slate-900">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>@yield('title', 'Portal') - Zacma AI Platform</title>
+    <title>@yield('title', 'Zacma SMM Portal')</title>
 
     <script src="{{ asset('js/tailwind.min.js') }}"></script>
     <script defer src="{{ asset('js/alpine.min.js') }}"></script>
@@ -13,14 +12,17 @@
 
     <style>
         [x-cloak] { display: none !important; }
+        :root {
+            --primary: {{ isset($currentTenant) && isset($currentTenant->branding_colors['primary']) ? $currentTenant->branding_colors['primary'] : '#2563EB' }};
+        }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans text-slate-800 antialiased" x-data="{ sidebarOpen: false }">
+<body class="h-full flex overflow-hidden font-sans text-slate-100 antialiased" x-data="{ sidebarOpen: false }">
     @if(session()->has('impersonator_id'))
-        <div class="bg-amber-500 text-slate-950 px-4 py-2 text-xs sm:text-sm font-semibold flex items-center justify-between shadow-md z-50 flex-shrink-0">
+        <div class="fixed top-0 left-0 right-0 bg-amber-500 text-slate-950 px-4 py-2 text-xs font-semibold flex items-center justify-between shadow-md z-50">
             <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-user-secret text-base"></i>
-                <span><strong>Impersonation Active:</strong> Viewing platform as <strong>{{ Auth::user()->name }}</strong> ({{ Auth::user()->email }} &bull; Role: {{ Auth::user()->role }}).</span>
+                <span><strong>Impersonation Active:</strong> Viewing as <strong>{{ Auth::user()->name }}</strong> ({{ Auth::user()->email }} &bull; Role: {{ Auth::user()->role }}).</span>
             </div>
             <a href="{{ route('super-admin.stop-impersonation') }}" class="bg-slate-950 hover:bg-black text-white px-3 py-1 rounded text-xs font-bold transition flex items-center space-x-1 shadow-sm">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -28,333 +30,212 @@
             </a>
         </div>
     @endif
-    <div class="flex-1 flex overflow-hidden">
-        <!-- Mobile Sidebar Backdrop -->
-        <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden"></div>
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" class="fixed inset-0 z-40 bg-black/60 md:hidden backdrop-blur-sm"></div>
 
     <!-- Sidebar -->
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col transition-transform duration-200 ease-in-out lg:static lg:translate-x-0">
-        <!-- Brand -->
-        <div class="h-16 flex items-center px-6 bg-slate-950 border-b border-slate-800">
-            <a href="{{ route('home') }}" class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-base">Z</div>
-                <span class="font-bold text-white tracking-tight">Zacma Cloud</span>
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-950 border-r border-slate-800 transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:flex md:flex-col shrink-0 {{ session()->has('impersonator_id') ? 'pt-9' : '' }}">
+        <!-- Logo -->
+        <div class="h-16 flex items-center px-6 border-b border-slate-800">
+            <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-extrabold text-base shadow-sm group-hover:scale-105 transition">
+                    <i class="fa-solid fa-bolt text-xs"></i>
+                </div>
+                <span class="font-extrabold text-white tracking-tight text-lg">Zacma <span class="text-blue-400 text-xs font-bold uppercase tracking-wider bg-blue-500/20 px-1.5 py-0.5 rounded border border-blue-400/30">SMM</span></span>
             </a>
         </div>
 
-        <!-- Tenant Badge -->
-        <div class="px-6 py-3 bg-slate-900/50 border-b border-slate-800/80">
-            <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Active Tenant</div>
-            <div class="text-sm font-semibold text-white truncate">
-                {{ Auth::user()->isSuperAdmin() ? 'Global Super Admin' : (Auth::user()->organization ? Auth::user()->organization->name : 'No Tenant') }}
+        <!-- Tenant / Portal Badge -->
+        <div class="px-6 py-3 bg-slate-900/60 border-b border-slate-800">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Active Role & Tenant</div>
+            <div class="text-xs font-bold text-white truncate flex items-center gap-1.5 mt-0.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>{{ Auth::user()->isSuperAdmin() ? 'Global Super Admin' : (Auth::user()->organization ? Auth::user()->organization->name : 'Zacma Client') }}</span>
             </div>
         </div>
 
         <!-- Navigation Links -->
-        <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             @if(Auth::user()->isSuperAdmin())
-                <div class="text-[11px] uppercase tracking-wider text-blue-400 font-bold px-3 py-1">Command Center</div>
-                <a href="{{ route('super-admin.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.dashboard') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-gauge-high w-5"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ route('super-admin.search') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.search') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-magnifying-glass w-5"></i>
-                    <span>Global Search</span>
-                </a>
-
-                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-1 mt-3">Industry Sectors</div>
-                <a href="{{ route('super-admin.auto.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.auto.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-car w-5 text-blue-400"></i>
-                    <span>Auto / Vehicles</span>
-                </a>
-                <a href="{{ route('super-admin.property.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.property.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-building w-5 text-emerald-400"></i>
-                    <span>Real Estate</span>
-                </a>
-                <a href="{{ route('super-admin.electronics.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.electronics.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-laptop w-5 text-indigo-400"></i>
-                    <span>Electronics</span>
-                </a>
-                <a href="{{ route('super-admin.categories.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.categories.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-layer-group w-5"></i>
-                    <span>Dynamic Categories</span>
-                </a>
-
-                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-1 mt-3">Accounts & Roles</div>
-                <a href="{{ route('super-admin.organizations.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.organizations.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-building-user w-5"></i>
-                    <span>Dealerships / Tenants</span>
-                </a>
-                <a href="{{ route('super-admin.users.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.users.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-users-gear w-5"></i>
-                    <span>All Users & Roles</span>
-                </a>
-                <a href="{{ route('super-admin.customers.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.customers.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-user-tag w-5 text-teal-400"></i>
-                    <span>Customers</span>
-                </a>
-                <a href="{{ route('super-admin.sales-agents.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.sales-agents.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-id-badge w-5 text-amber-400"></i>
-                    <span>Sales Agents</span>
-                </a>
-
-                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-1 mt-3">Commerce & CRM</div>
-                <a href="{{ route('super-admin.listings.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.listings.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-tags w-5"></i>
-                    <span>Listings Moderation</span>
-                </a>
-                <a href="{{ route('super-admin.orders.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.orders.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-receipt w-5 text-blue-400"></i>
-                    <span>Orders & Purchases</span>
-                </a>
-                <a href="{{ route('super-admin.payments.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.payments.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-credit-card w-5 text-emerald-400"></i>
-                    <span>Payments & Gateways</span>
-                </a>
-                <a href="{{ route('super-admin.crm.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.crm.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-fire w-5 text-amber-400"></i>
-                    <span>Global CRM</span>
-                </a>
-
-                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-1 mt-3">Platform Control</div>
-                <a href="{{ route('super-admin.plans.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.plans.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-sliders w-5"></i>
-                    <span>SaaS Plans & Limits</span>
-                </a>
-                <a href="{{ route('super-admin.settings.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.settings.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-key w-5"></i>
-                    <span>Integrations & Keys</span>
-                </a>
-                <a href="{{ route('super-admin.audit-logs.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.audit-logs.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-shield-halved w-5"></i>
-                    <span>Audit Logs</span>
-                </a>
-
-                <div class="text-[11px] uppercase tracking-wider text-purple-400 font-bold px-3 py-1 mt-3">SMM Marketplace Ops</div>
-                <a href="{{ route('super-admin.smm.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.dashboard') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-gauge-high w-5 text-purple-400"></i>
+                <div class="text-[10px] uppercase tracking-wider text-purple-400 font-extrabold px-3 py-1">Super Admin Central Command</div>
+                <a href="{{ route('super-admin.smm.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('super-admin.smm.dashboard') ? 'bg-purple-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-gauge-high w-4 text-purple-300"></i>
                     <span>SMM Command Center</span>
                 </a>
-                <a href="{{ route('super-admin.smm.platforms') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.platforms*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-share-nodes w-5 text-indigo-400"></i>
+                <a href="{{ route('super-admin.smm.platforms') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('super-admin.smm.platforms*') ? 'bg-purple-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-share-nodes w-4 text-indigo-400"></i>
                     <span>Platforms & Taxonomy</span>
                 </a>
-                <a href="{{ route('super-admin.smm.services') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.services*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-layer-group w-5 text-blue-400"></i>
-                    <span>Services Catalog</span>
+                <a href="{{ route('super-admin.smm.services') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('super-admin.smm.services*') ? 'bg-purple-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-layer-group w-4 text-blue-400"></i>
+                    <span>Services & Pricing</span>
                 </a>
-                <a href="{{ route('super-admin.smm.providers') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.providers*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-network-wired w-5 text-emerald-400"></i>
+                <a href="{{ route('super-admin.smm.providers') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('super-admin.smm.providers*') ? 'bg-purple-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-network-wired w-4 text-emerald-400"></i>
                     <span>Upstream Gateways</span>
                 </a>
-                <a href="{{ route('super-admin.smm.orders') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.orders*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-boxes-stacked w-5 text-amber-400"></i>
-                    <span>SMM Orders Audit</span>
+                <a href="{{ route('super-admin.smm.orders') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('super-admin.smm.orders*') ? 'bg-purple-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-boxes-stacked w-4 text-amber-400"></i>
+                    <span>Global Orders Audit</span>
                 </a>
-                <a href="{{ route('super-admin.smm.wallets') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.wallets*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-wallet w-5 text-teal-400"></i>
+                <a href="{{ route('super-admin.smm.wallets') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('super-admin.smm.wallets*') ? 'bg-purple-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-wallet w-4 text-teal-400"></i>
                     <span>Liquidity & Wallets</span>
                 </a>
-                <a href="{{ route('super-admin.smm.child-panels') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.child-panels*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-globe w-5 text-pink-400"></i>
+                <a href="{{ route('super-admin.smm.child-panels') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('super-admin.smm.child-panels*') ? 'bg-purple-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-globe w-4 text-pink-400"></i>
                     <span>Child Panels</span>
                 </a>
-                <a href="{{ route('super-admin.smm.tickets') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('super-admin.smm.tickets*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-headset w-5 text-rose-400"></i>
-                    <span>SMM Support Desk</span>
+                <a href="{{ route('super-admin.smm.tickets') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('super-admin.smm.tickets*') ? 'bg-purple-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-headset w-4 text-rose-400"></i>
+                    <span>Support Tickets</span>
                 </a>
-            @endif
-
-            @if(Auth::user()->isStaff() || Auth::user()->isSuperAdmin())
-                <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-1 mt-4">Dealer / Business CRM</div>
-                <a href="{{ route('dealer.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.dashboard') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-gauge w-5"></i>
-                    <span>Overview</span>
+                <a href="{{ route('super-admin.users.index') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('super-admin.users*') ? 'bg-purple-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-users-gear w-4 text-slate-400"></i>
+                    <span>Users & Access</span>
                 </a>
-                <a href="{{ route('dealer.crm.contacts.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.crm.contacts.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-address-book w-5"></i>
-                    <span>Contacts & 360</span>
-                </a>
-                <a href="{{ route('dealer.crm.leads.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.crm.leads.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-fire w-5 text-amber-400"></i>
-                    <span>Leads & AI Scoring</span>
-                </a>
-                <a href="{{ route('dealer.crm.pipeline.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.crm.pipeline.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-columns w-5 text-blue-400"></i>
-                    <span>Sales Pipeline (Kanban)</span>
-                </a>
-                <a href="{{ route('dealer.crm.tasks.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.crm.tasks.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-list-check w-5"></i>
-                    <span>Tasks & Follow-ups</span>
-                </a>
-                <a href="{{ route('dealer.crm.calendar.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.crm.calendar.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-calendar-days w-5"></i>
-                    <span>Calendar & Visits</span>
-                </a>
-                <a href="{{ route('dealer.ai.assistant') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.ai.assistant') ? 'bg-indigo-600 text-white' : 'text-indigo-300' }}">
-                    <i class="fa-solid fa-robot w-5"></i>
-                    <span>AI CRM Assistant</span>
-                </a>
-
-                <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-1 mt-4">Inventory & Sales</div>
-                <a href="{{ route('dealer.listings.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.listings.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-box-archive w-5"></i>
-                    <span>Listings / Inventory</span>
-                </a>
-                <a href="{{ route('dealer.orders.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.orders.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-receipt w-5"></i>
-                    <span>Orders & Deposits</span>
-                </a>
-                <a href="{{ route('dealer.staff.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.staff.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-user-group w-5"></i>
-                    <span>Staff Team</span>
-                </a>
-                <a href="{{ route('dealer.settings.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.settings.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-gear w-5"></i>
-                    <span>Branding & Profile</span>
-                </a>
-                <a href="{{ route('dealer.subscription.index') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('dealer.subscription.*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-credit-card w-5 text-emerald-400"></i>
-                    <span>Subscription & Plans</span>
+                <a href="{{ route('super-admin.audit-logs.index') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('super-admin.audit-logs*') ? 'bg-purple-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-shield-halved w-4 text-slate-400"></i>
+                    <span>System Audit Logs</span>
                 </a>
             @endif
 
             @if(Auth::user()->isReseller() || Auth::user()->isSuperAdmin())
-                <div class="text-[11px] uppercase tracking-wider text-emerald-400 font-bold px-3 py-1 mt-4">Reseller & Agency</div>
-                <a href="{{ route('reseller.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.dashboard') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-chart-pie w-5 text-emerald-400"></i>
-                    <span>Reseller Hub</span>
+                <div class="text-[10px] uppercase tracking-wider text-blue-400 font-extrabold px-3 py-1 mt-4">Reseller & Agency Hub</div>
+                <a href="{{ route('reseller.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('reseller.dashboard') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-chart-line w-4 text-blue-400"></i>
+                    <span>Wholesale Overview</span>
                 </a>
-                <a href="{{ route('reseller.services') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.services*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-tags w-5 text-blue-400"></i>
-                    <span>Wholesale Rates</span>
+                <a href="{{ route('reseller.services') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('reseller.services') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-tags w-4 text-emerald-400"></i>
+                    <span>Wholesale Rate List</span>
                 </a>
-                <a href="{{ route('reseller.customers') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.customers*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-users w-5 text-purple-400"></i>
+                <a href="{{ route('reseller.child-panel') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('reseller.child-panel*') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-globe w-4 text-pink-400"></i>
+                    <span>Child Panel Settings</span>
+                </a>
+                <a href="{{ route('reseller.customers') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('reseller.customers*') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-users w-4 text-teal-400"></i>
                     <span>Agency Clients</span>
                 </a>
-                <a href="{{ route('reseller.orders') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.orders*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-list-check w-5 text-amber-400"></i>
+                <a href="{{ route('reseller.orders') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('reseller.orders') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-receipt w-4 text-amber-400"></i>
                     <span>Reseller Orders</span>
                 </a>
-                <a href="{{ route('reseller.api-docs') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.api-docs*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-code w-5 text-indigo-400"></i>
-                    <span>API v2 & Keys</span>
-                </a>
-                <a href="{{ route('reseller.child-panel') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('reseller.child-panel*') ? 'bg-blue-600 text-white' : '' }}">
-                    <i class="fa-solid fa-wand-magic-sparkles w-5 text-pink-400"></i>
-                    <span>White-Label Setup</span>
+                <a href="{{ route('reseller.api-docs') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('reseller.api-docs*') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-code w-4 text-indigo-400"></i>
+                    <span>SMM v2 API & Keys</span>
                 </a>
             @endif
 
-            <div class="text-[11px] uppercase tracking-wider text-blue-400 font-bold px-3 py-1 mt-4">SMM Client Portal</div>
-            <a href="{{ route('customer.smm.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.dashboard') ? 'bg-blue-600 text-white' : '' }}">
-                <i class="fa-solid fa-rocket w-5 text-blue-400"></i>
-                <span>SMM Dashboard</span>
+            <div class="text-[10px] uppercase tracking-wider text-emerald-400 font-extrabold px-3 py-1 mt-4">SMM Client Portal</div>
+            <a href="{{ route('customer.smm.dashboard') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('customer.smm.dashboard') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                <i class="fa-solid fa-house w-4 text-slate-400"></i>
+                <span>Portal Overview</span>
             </a>
-            <a href="{{ route('customer.smm.new-order') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.new-order') ? 'bg-blue-600 text-white' : '' }}">
-                <i class="fa-solid fa-cart-plus w-5 text-emerald-400"></i>
-                <span>New Order</span>
+            <a href="{{ route('customer.smm.new-order') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('customer.smm.new-order') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                <i class="fa-solid fa-cart-plus w-4 text-emerald-400"></i>
+                <span>New Instant Order</span>
             </a>
-            <a href="{{ route('customer.smm.services') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.services') ? 'bg-blue-600 text-white' : '' }}">
-                <i class="fa-solid fa-list w-5 text-indigo-400"></i>
-                <span>Services List</span>
+            <a href="{{ route('customer.smm.services') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('customer.smm.services') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                <i class="fa-solid fa-list-check w-4 text-indigo-400"></i>
+                <span>Services Catalog</span>
             </a>
-            <a href="{{ route('customer.smm.orders') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.orders') ? 'bg-blue-600 text-white' : '' }}">
-                <i class="fa-solid fa-clock-rotate-left w-5 text-amber-400"></i>
-                <span>My Orders</span>
+            <a href="{{ route('customer.smm.orders.index') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('customer.smm.orders*') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                <i class="fa-solid fa-clock-rotate-left w-4 text-amber-400"></i>
+                <span>My Orders History</span>
             </a>
-            <a href="{{ route('customer.smm.bulk-orders') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.bulk-orders') ? 'bg-blue-600 text-white' : '' }}">
-                <i class="fa-solid fa-layer-group w-5 text-purple-400"></i>
-                <span>Mass Order</span>
+            <a href="{{ route('customer.smm.bulk-orders') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('customer.smm.bulk-orders') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                <i class="fa-solid fa-layer-group w-4 text-purple-400"></i>
+                <span>Mass / Bulk Order</span>
             </a>
-            <a href="{{ route('customer.smm.wallet') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.wallet') ? 'bg-blue-600 text-white' : '' }}">
-                <i class="fa-solid fa-wallet w-5 text-teal-400"></i>
+            <a href="{{ route('customer.smm.wallet') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('customer.smm.wallet') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                <i class="fa-solid fa-wallet w-4 text-teal-400"></i>
                 <span>Deposit & Wallet</span>
             </a>
-            <a href="{{ route('customer.smm.tickets') }}" class="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white {{ request()->routeIs('customer.smm.tickets') ? 'bg-blue-600 text-white' : '' }}">
-                <i class="fa-solid fa-life-ring w-5 text-rose-400"></i>
+            <a href="{{ route('customer.smm.tickets') }}" class="flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800/80 hover:text-white transition {{ request()->routeIs('customer.smm.tickets*') ? 'bg-blue-600 text-white shadow' : 'text-slate-300' }}">
+                <i class="fa-solid fa-headset w-4 text-rose-400"></i>
                 <span>Support Tickets</span>
             </a>
         </nav>
 
-        <!-- User profile footer -->
-        <div class="p-4 bg-slate-950 border-t border-slate-800 flex items-center justify-between">
-            <a href="{{ route('profile.edit') }}" class="flex items-center space-x-3 group overflow-hidden" title="Account & Profile Settings">
-                <img src="{{ Auth::user()->getAvatarUrl() }}" alt="{{ Auth::user()->name }}" class="w-8 h-8 rounded-full object-cover border border-slate-700 flex-shrink-0 group-hover:border-blue-500 transition">
-                <div class="text-xs truncate">
-                    <div class="font-semibold text-white truncate max-w-[110px] group-hover:text-blue-400 transition">{{ Auth::user()->name }}</div>
-                    <div class="text-slate-400 text-[10px] flex items-center gap-1">
-                        <span>{{ Auth::user()->role }}</span>
-                        <i class="fa-solid fa-gear text-[9px] text-slate-500 group-hover:text-blue-400"></i>
-                    </div>
+        <!-- User Profile footer in sidebar -->
+        <div class="p-3 border-t border-slate-800 flex items-center justify-between bg-slate-900/70">
+            <div class="flex items-center space-x-2.5 overflow-hidden">
+                <img src="{{ Auth::user()->getAvatarUrl() }}" alt="{{ Auth::user()->name }}" class="w-8 h-8 rounded-full object-cover border border-slate-700">
+                <div class="truncate">
+                    <div class="text-xs font-bold text-white truncate">{{ Auth::user()->name }}</div>
+                    <div class="text-[10px] text-slate-400 truncate">{{ Auth::user()->role }}</div>
                 </div>
-            </a>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="text-slate-400 hover:text-red-400 p-1.5" title="Logout">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </button>
-            </form>
+            </div>
+            <div class="flex items-center space-x-1">
+                <a href="{{ route('profile.edit') }}" class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Profile Settings">
+                    <i class="fa-solid fa-gear text-xs"></i>
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                    </button>
+                </form>
+            </div>
         </div>
     </aside>
 
-    <!-- Main View Area -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-        <!-- Topbar -->
-        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center space-x-4">
-                <button @click="sidebarOpen = true" class="lg:hidden text-slate-500 hover:text-slate-700">
-                    <i class="fa-solid fa-bars text-xl"></i>
+    <!-- Main Content wrapper -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-900 {{ session()->has('impersonator_id') ? 'pt-9' : '' }}">
+        <!-- Top Navigation Bar -->
+        <header class="h-16 bg-slate-950/90 border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 shrink-0 z-10 backdrop-blur-md">
+            <div class="flex items-center space-x-3">
+                <button @click="sidebarOpen = true" class="md:hidden text-slate-400 hover:text-white p-2">
+                    <i class="fa-solid fa-bars text-lg"></i>
                 </button>
-                <h1 class="text-lg font-bold text-slate-900">@yield('title', 'Dashboard')</h1>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('home') }}" class="text-xs font-bold text-slate-400 hover:text-blue-400 flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Storefront</span>
+                    </a>
+                </div>
             </div>
 
             <div class="flex items-center space-x-3">
-                @if(Auth::user()->isSuperAdmin())
-                    <a href="{{ route('super-admin.search') }}" class="hidden sm:flex items-center space-x-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg px-3 py-1.5 transition">
-                        <i class="fa-solid fa-magnifying-glass text-[11px] text-slate-400"></i>
-                        <span>Global Search</span>
-                    </a>
-                @endif
-                <a href="{{ route('home') }}" target="_blank" class="text-xs font-semibold text-slate-600 hover:text-blue-600 flex items-center space-x-1 border border-slate-200 rounded-lg px-3 py-1.5">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    <span>Public Marketplace</span>
+                <!-- Wallet Quick Widget -->
+                @php $currentWallet = Auth::user()->wallet; @endphp
+                <a href="{{ route('customer.smm.wallet') }}" class="px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-bold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-wallet text-emerald-400"></i>
+                    <span class="text-white font-mono">${{ number_format($currentWallet?->balance ?? 0, 2) }}</span>
+                    <span class="text-[10px] text-blue-400 font-bold bg-blue-950 px-1.5 py-0.5 rounded border border-blue-800/60">+ Add Funds</span>
                 </a>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                    {{ Auth::user()->role }}
-                </span>
-                <a href="{{ route('profile.edit') }}" class="flex items-center space-x-2 pl-3 border-l border-slate-200 hover:opacity-85 transition" title="My Profile Settings">
-                    <img src="{{ Auth::user()->getAvatarUrl() }}" alt="{{ Auth::user()->name }}" class="w-8 h-8 rounded-full object-cover border border-slate-200 shadow-sm">
-                    <span class="hidden md:inline text-xs font-bold text-slate-700">{{ Auth::user()->name }}</span>
-                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400 hidden md:inline"></i>
+
+                <a href="{{ route('customer.smm.new-order') }}" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition shadow flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span class="hidden sm:inline">New Order</span>
                 </a>
             </div>
         </header>
 
-        <!-- Flash alerts -->
+        <!-- Flash messages -->
         @if(session('success'))
-            <div class="bg-emerald-50 border-b border-emerald-200 text-emerald-800 px-6 py-2.5 text-sm flex items-center space-x-2">
-                <i class="fa-solid fa-circle-check text-emerald-600"></i>
+            <div class="bg-emerald-500 text-white px-4 py-2 text-center text-xs font-semibold shadow-sm flex items-center justify-center space-x-2 shrink-0">
+                <i class="fa-solid fa-circle-check"></i>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
         @if(session('error'))
-            <div class="bg-rose-50 border-b border-rose-200 text-rose-800 px-6 py-2.5 text-sm flex items-center space-x-2">
-                <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+            <div class="bg-rose-600 text-white px-4 py-2 text-center text-xs font-semibold shadow-sm flex items-center justify-center space-x-2 shrink-0">
+                <i class="fa-solid fa-circle-exclamation"></i>
                 <span>{{ session('error') }}</span>
             </div>
         @endif
 
-        <!-- Scrollable Body -->
-        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <!-- Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-900 text-slate-100">
             @yield('content')
         </main>
     </div>
-    </div>
 
-    <!-- Universal Contextual AI Assistant Widget -->
+    <!-- Universal AI Assistant Widget -->
     <x-ai-chat-widget />
 </body>
 </html>

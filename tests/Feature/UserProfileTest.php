@@ -22,9 +22,9 @@ class UserProfileTest extends TestCase
         parent::setUp();
 
         $this->org = Organization::create([
-            'name' => 'Apex Dealership',
-            'slug' => 'apex-dealership',
-            'currency' => 'ETB',
+            'name' => 'Apex Agency',
+            'slug' => 'apex-agency',
+            'currency' => 'USD',
             'status' => 'active',
         ]);
 
@@ -54,7 +54,7 @@ class UserProfileTest extends TestCase
         $response->assertSee('Profile');
         $response->assertSee('Blen Tadesse');
         $response->assertSee('blen@apex.com');
-        $response->assertSee('Apex Dealership');
+        $response->assertSee('Apex Agency');
     }
 
     public function test_user_can_update_personal_information()

@@ -2,40 +2,40 @@
     $user = Auth::user();
     $role = $user ? $user->role : 'GUEST';
     $org = $user?->organization;
-    $isBranded = $org && $org->hasUsernameBrandedAi();
-    $dealerHandle = $org ? ($org->subdomain ?: $org->slug) : 'dealer';
+    $isBranded = $org && !empty($org->brand_name);
+    $agencyHandle = $org ? ($org->subdomain ?: $org->slug) : 'agency';
 
     $roleTitle = match($role) {
-        'SUPER_ADMIN' => 'Zacma SaaS Director AI',
-        'ORGANIZATION_ADMIN', 'MANAGER', 'SALES_AGENT', 'STAFF', 'SELLER' => $isBranded ? "@{$dealerHandle} AI Concierge" : 'Dealership CRM Copilot',
-        'CUSTOMER' => 'Zacma Shopping Concierge',
-        default => 'Zacma Marketplace Guide'
+        'SUPER_ADMIN' => 'Zacma SMM Director AI',
+        'ORGANIZATION_ADMIN', 'MANAGER', 'SALES_AGENT', 'STAFF', 'RESELLER', 'SELLER' => $isBranded ? "@{$agencyHandle} Agency Copilot" : 'SMM Reseller Copilot',
+        'CUSTOMER' => 'Zacma SMM Growth Assistant',
+        default => 'Zacma SMM Guide'
     };
 
     $quickPrompts = match($role) {
         'SUPER_ADMIN' => [
-            'Summarize platform activity & metrics',
-            'How do I add a new dynamic category?',
-            'What subscription tiers are active?',
-            'Explain cross-tenant isolation security',
+            'Summarize platform orders & revenue',
+            'Check provider latency & API balances',
+            'How do I add a new SMM service?',
+            'Review active white-label child panels',
         ],
-        'ORGANIZATION_ADMIN', 'MANAGER', 'SALES_AGENT', 'STAFF', 'SELLER' => [
-            'Who are my hottest leads today?',
-            'What follow-up tasks are due today?',
-            'Draft follow-up for inactive leads',
-            'Suggest tips to increase listing conversion',
+        'ORGANIZATION_ADMIN', 'MANAGER', 'SALES_AGENT', 'STAFF', 'RESELLER', 'SELLER' => [
+            'Which SMM services have highest margins?',
+            'How do I connect my website via SMM API?',
+            'How do I set custom markups for child panels?',
+            'Check my current reseller wallet balance',
         ],
         'CUSTOMER' => [
-            'Find hybrid SUVs under 6M ETB',
-            'How do I book a vehicle inspection?',
-            'What is the status of my order deposit?',
-            'How does buyer protection work on Zacma?',
+            'What is the best package for Instagram followers?',
+            'How do I track my active SMM order?',
+            'How do I request a refill or cancel an order?',
+            'How do I deposit funds into my wallet?',
         ],
         default => [
-            'What categories are available to browse?',
-            'How can I sell my car or property here?',
-            'What payment methods are supported in Ethiopia?',
-            'How do I contact a certified dealer?',
+            'What platforms and services are available?',
+            'How fast is order delivery completed?',
+            'How do I register as a wholesale reseller?',
+            'What payment methods are supported?',
         ]
     };
 @endphp

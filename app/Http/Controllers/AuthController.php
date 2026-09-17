@@ -147,12 +147,8 @@ class AuthController extends Controller
             'super_admin' => 'admin@zacma.com',
             'superadmin' => 'admin@zacma.com',
             'admin' => 'admin@zacma.com',
-            'dealer' => 'auto@zacma.com',
-            'auto' => 'auto@zacma.com',
-            'agent' => 'dawit@zacma.com',
-            'sales_agent' => 'dawit@zacma.com',
-            'property' => 'property@zacma.com',
-            'electronics' => 'electronics@zacma.com',
+            'reseller' => 'reseller@zacma.com',
+            'agency' => 'reseller@zacma.com',
             'customer' => 'customer@zacma.com',
         ];
 

@@ -18,11 +18,11 @@
         </div>
 
         <div class="flex items-center gap-3">
-            @if($user->isStaff() && $org)
-                <a href="{{ route('dealer.subscription.index') }}" class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-crown text-emerald-600"></i>
-                    <span>{{ $org->plan?->name ?? 'Dealer Plan' }}</span>
-                </a>
+            @if($org)
+                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl flex items-center gap-1.5">
+                    <i class="fa-solid fa-building text-emerald-600"></i>
+                    <span>{{ $org->name }}</span>
+                </span>
             @endif
             <a href="{{ $user->getDashboardUrl() }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 border border-slate-300 bg-white px-3.5 py-2 rounded-xl transition">
                 &larr; Back to Dashboard

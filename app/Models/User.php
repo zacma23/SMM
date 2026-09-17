@@ -64,36 +64,6 @@ class User extends Authenticatable
         return $this->belongsTo(Organization::class);
     }
 
-    public function listings(): HasMany
-    {
-        return $this->hasMany(Listing::class);
-    }
-
-    public function orders(): HasMany
-    {
-        return $this->hasMany(Order::class);
-    }
-
-    public function assignedLeads(): HasMany
-    {
-        return $this->hasMany(Lead::class, 'assigned_user_id');
-    }
-
-    public function assignedDeals(): HasMany
-    {
-        return $this->hasMany(Deal::class, 'assigned_user_id');
-    }
-
-    public function assignedTasks(): HasMany
-    {
-        return $this->hasMany(Task::class, 'assigned_user_id');
-    }
-
-    public function assignedAppointments(): HasMany
-    {
-        return $this->hasMany(Appointment::class, 'assigned_user_id');
-    }
-
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class);
@@ -206,18 +176,12 @@ class User extends Authenticatable
     public function getDashboardUrl(): string
     {
         if ($this->isSuperAdmin()) {
-            return route('super-admin.dashboard');
+            return route('super-admin.smm.dashboard');
         }
-        if ($this->role === self::ROLE_RESELLER) {
+        if ($this->role === self::ROLE_RESELLER || $this->isOrgAdmin()) {
             return route('reseller.dashboard');
         }
-        if ($this->isStaff()) {
-            return route('dealer.dashboard');
-        }
-        if ($this->isSeller()) {
-            return route('seller.dashboard');
-        }
-        return route('customer.dashboard');
+        return route('customer.smm.dashboard');
     }
 
     public function getAvatarUrl(): string

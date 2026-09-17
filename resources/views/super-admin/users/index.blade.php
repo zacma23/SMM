@@ -33,11 +33,11 @@
                 <select name="role" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-slate-700">
                     <option value="">All Platform Roles</option>
                     <option value="SUPER_ADMIN" {{ request('role') === 'SUPER_ADMIN' ? 'selected' : '' }}>SUPER_ADMIN</option>
-                    <option value="ORGANIZATION_ADMIN" {{ request('role') === 'ORGANIZATION_ADMIN' ? 'selected' : '' }}>ORGANIZATION_ADMIN (Dealer)</option>
+                    <option value="ORGANIZATION_ADMIN" {{ request('role') === 'ORGANIZATION_ADMIN' ? 'selected' : '' }}>ORGANIZATION_ADMIN (Reseller/Agency)</option>
                     <option value="MANAGER" {{ request('role') === 'MANAGER' ? 'selected' : '' }}>MANAGER</option>
                     <option value="SALES_AGENT" {{ request('role') === 'SALES_AGENT' ? 'selected' : '' }}>SALES_AGENT</option>
                     <option value="STAFF" {{ request('role') === 'STAFF' ? 'selected' : '' }}>STAFF</option>
-                    <option value="SELLER" {{ request('role') === 'SELLER' ? 'selected' : '' }}>SELLER</option>
+                    <option value="SELLER" {{ request('role') === 'SELLER' ? 'selected' : '' }}>RESELLER / SELLER</option>
                     <option value="CUSTOMER" {{ request('role') === 'CUSTOMER' ? 'selected' : '' }}>CUSTOMER</option>
                 </select>
             </div>
@@ -61,7 +61,7 @@
                     <tr>
                         <th class="px-4 py-3.5">User Identity</th>
                         <th class="px-4 py-3.5">Role</th>
-                        <th class="px-4 py-3.5">Organization / Dealership</th>
+                        <th class="px-4 py-3.5">Organization / Child Panel</th>
                         <th class="px-4 py-3.5">Phone</th>
                         <th class="px-4 py-3.5">Status</th>
                         <th class="px-4 py-3.5">Joined</th>
